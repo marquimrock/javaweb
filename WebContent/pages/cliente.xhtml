@@ -1,0 +1,218 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	template="/templates/modeloSistema.xhtml">
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menuPrincipal.xhtml" />
+	</ui:define>
+
+	<ui:define name="conteudo">
+		<h:form id="frmCliListagem">
+			<p:dataTable id="tblClientes" widgetVar="tabelaClientes"
+				emptyMessage="Nenhum Registro Encontrado"
+				value="#{MBCliente.clientes}" var="cliente"
+				filteredValue="#{MBCliente.clientesFiltrados}" paginator="true"
+				rows="10">
+
+				<f:facet name="header">
+				Cliente - Listagem
+				</f:facet>
+
+				<p:column headerText="Código" sortBy="#{cliente.id}">
+					<h:outputText value="#{cliente.id}" />
+				</p:column>
+
+				<p:column headerText="CNPJ: " sortBy="#{cliente.cnpj}"
+					filterBy="#{cliente.cnpj}">
+					<h:outputText value="#{cliente.cnpj}" />
+				</p:column>
+
+				<p:column headerText="Razao Social" sortBy="#{cliente.razao_social}"
+					filterBy="#{cliente.razao_social}">
+					<h:outputText value="#{cliente.razao_social}" />
+				</p:column>
+
+				<p:column headerText="Fantasia" sortBy="#{cliente.fantasia}"
+					filterBy="#{cliente.fantasia}">
+					<h:outputText value="#{cliente.fantasia}" />
+				</p:column>
+				<p:column headerText="Telefone">
+					<h:outputText value="#{cliente.telefone}" />
+				</p:column>
+				<p:column headerText="E-Mail:">
+					<h:outputText value="#{cliente.email}" />
+				</p:column>
+
+<!-- 				<p:column headerText="Ativo:"> -->
+<!-- 					<p:selectBooleanCheckbox value="#{MBCliente.cliente.ativo}" /> -->
+<!-- 				</p:column> -->
+
+				<p:column headerText="Opções">
+
+					<p:commandButton icon="ui-icon-pencil"
+						oncomplete="PF('dlgCliEditar').show();"
+						update=":frmCliEditar:pnlCliEditar">
+						<f:setPropertyActionListener target="#{MBCliente.cliente}"
+							value="#{cliente}" />
+					</p:commandButton>
+
+				</p:column>
+
+				<f:facet name="footer">
+					<p:commandButton value="Novo"
+						actionListener="#{MBCliente.prepararNovo}"
+						oncomplete="PF('dlgCliNovo').show();"
+						update=":frmCliNovo:pnlCliNovo" />
+				</f:facet>
+			</p:dataTable>
+		</h:form>
+
+		<p:dialog widgetVar="dlgCliNovo" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Cliente - Novo">
+			<h:form id="frmCliNovo">
+				<h:panelGrid id="pnlCliNovo" columns="2">
+
+					<p:outputLabel for="txtCnpjCliNovo" value="CNPJ:" />
+					<p:inputMask id="txtCnpjCliNovo" size="30" maxlength="50"
+						value="#{MBCliente.cliente.cnpj}" required="true"
+						requiredMessage="Campo de preenchimento obrigatorio!!!"
+						mask="99.999.999/9999-99" />
+
+					<p:outputLabel for="txtIeCliNovo" value="Inscricao Estadual:" />
+					<p:inputText id="txtIeCliNovo" size="30" maxlength="50"
+						value="#{MBCliente.cliente.ie}" required="true"
+						requiredMessage="Campo de preenchimento obrigatorio!!!"
+						onblur="value=value.toUpperCase()" />
+
+					<p:outputLabel for="txtRazCliNovo" value="Razao Social:" />
+					<p:inputText id="txtRazCliNovo" size="30" maxlength="50"
+						value="#{MBCliente.cliente.razao_social}" required="true"
+						requiredMessage="Campo de preenchimento obrigatorio!!!"
+						onblur="value=value.toUpperCase()" />
+
+					<p:outputLabel for="txtFanCliNovo" value="Fantasia:" />
+					<p:inputText id="txtFanCliNovo" size="30" maxlength="50"
+						value="#{MBCliente.cliente.fantasia}" required="true"
+						requiredMessage="Campo de preenchimento obrigatorio!!!"
+						onblur="value=value.toUpperCase()" />
+
+					<p:outputLabel for="txtCidCliNovo" value="Cidade:" />
+					<p:inputText id="txtCidCliNovo" size="30" maxlength="50"
+						value="#{MBCliente.cliente.cidade}" required="true"
+						requiredMessage="Campo de preenchimento obrigatorio!!!"
+						onblur="value=value.toUpperCase()" />
+
+					<p:outputLabel for="txtTelCliNovo" value="Telefone:" />
+					<p:inputMask id="txtTelCliNovo" size="30" maxlength="50"
+						value="#{MBCliente.cliente.telefone}" required="true"
+						requiredMessage="Campo de preenchimento obrigatorio!!!"
+						mask="(99)9999-9999" />
+
+					<p:outputLabel for="txtEmailCliNovo" value="Email:" />
+					<p:inputText id="txtEmailCliNovo" size="30" maxlength="50"
+						value="#{MBCliente.cliente.email}" required="true"
+						requiredMessage="Campo de preenchimento obrigatorio!!!"
+						onblur="value=value.toLowerCase()" />
+
+					<p:outputLabel for="txtResCliNovo" value="Responsavel:" />
+					<p:inputText id="txtResCliNovo" size="30" maxlength="50"
+						value="#{MBCliente.cliente.responsavel}" required="true"
+						requiredMessage="Campo de preenchimento obrigatorio!!!"
+						onblur="value=value.toUpperCase()" />
+
+					<!-- 					<p:outputLabel value="Ativo:" /> -->
+					<!-- 					<p:selectBooleanCheckbox value="#{MBCliente.cliente.ativo}" /> -->
+
+				</h:panelGrid>
+				<h:panelGrid columns="2">
+					<p:commandButton value="Gravar" actionListener="#{MBCliente.novo}"
+						oncomplete="verificar(xhr, status, args, 'dlgCliNovo', 'tabelaClientes');"
+						update=":frmCliListagem:tblClientes :msgGlobal" />
+					<p:commandButton value="Cancelar" process="@this"
+						onclick="PF('dlgCliNovo').hide();">
+						<p:resetInput target="pnlCliNovo" />
+					</p:commandButton>
+				</h:panelGrid>
+			</h:form>
+
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgCliEditar" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Cliente - Editar">
+			<h:form id="frmCliEditar">
+				<h:panelGrid id="pnlCliEditar" columns="2">
+					<p:outputLabel value="Código" />
+					<h:outputText value="#{MBCliente.cliente.id}" />
+
+					<p:outputLabel for="txtCnpjCliEditar" value="CNPJ: " />
+					<p:inputMask id="txtCnpjCliEditar"
+						value="#{MBCliente.cliente.cnpj}" size="30" maxlength="50"
+						required="true" requiredMessage="Campo CNPJ é Obrigatorio!"
+						mask="99.999.999/9999-99" />
+
+					<p:outputLabel for="txtIeCliEditar" value="Inscricao Estadual: " />
+					<h:inputText id="txtIeCliEditar" value="#{MBCliente.cliente.ie}"
+						size="30" maxlength="50" required="true"
+						requiredMessage="Campo Inscricao Estadual é Obrigatorio!"
+						onblur="value=value.toUpperCase()" />
+
+					<p:outputLabel for="txtRazCliEditar" value="Razao Social: " />
+					<h:inputText id="txtRazCliEditar"
+						value="#{MBCliente.cliente.razao_social}" size="30" maxlength="50"
+						required="true" requiredMessage="Campo Descricao é Obrigatorio!"
+						onblur="value=value.toUpperCase()" />
+
+					<p:outputLabel for="txtFanCliEditar" value="Fantasia: " />
+					<h:inputText id="txtFanCliEditar"
+						value="#{MBCliente.cliente.fantasia}" size="30" maxlength="50"
+						required="true" requiredMessage="Campo Fantasia é Obrigatorio!"
+						onblur="value=value.toUpperCase()" />
+
+					<p:outputLabel for="txtCidCliEditar" value="Cidade: " />
+					<h:inputText id="txtCidCliEditar"
+						value="#{MBCliente.cliente.cidade}" size="30" maxlength="50"
+						required="true" requiredMessage="Campo Cidade é Obrigatorio!"
+						onblur="value=value.toUpperCase()" />
+
+					<p:outputLabel for="txtTelCliEditar" value="Telefone: " />
+					<p:inputMask id="txtTelCliEditar"
+						value="#{MBCliente.cliente.telefone}" size="30" maxlength="50"
+						required="true" requiredMessage="Campo Telefone é Obrigatorio!"
+						mask="(99)9999-9999" />
+
+					<p:outputLabel for="txtEmailCliEditar" value="Email: " />
+					<h:inputText id="txtEmailCliEditar"
+						value="#{MBCliente.cliente.email}" size="30" maxlength="50"
+						required="true" requiredMessage="Campo Email é Obrigatorio!"
+						onblur="value=value.toLowerCase()" />
+
+					<p:outputLabel for="txtResCliEditar" value="Responsavel: " />
+					<h:inputText id="txtResCliEditar"
+						value="#{MBCliente.cliente.responsavel}" size="30" maxlength="50"
+						required="true" requiredMessage="Campo Responsavel é Obrigatorio!"
+						onblur="value=value.toUpperCase()" />
+
+<!-- 					<p:outputLabel value="Ativo:" /> -->
+<!-- 					<h:inputText value="#{MBCliente.cliente.ativo}" /> -->
+
+				</h:panelGrid>
+				<h:panelGrid columns="2">
+					<p:commandButton value="Editar"
+						actionListener="#{MBCliente.editar}"
+						oncomplete="verificar(xhr, status, args, 'dlgCliEditar', 'tabelaClientes')"
+						update=":frmCliListagem:tblClientes :msgGlobal" />
+					<p:commandButton value="Cancelar" process="@this"
+						onclick="PF('dlgCliEditar').hide();" />
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+	</ui:define>
+
+</ui:composition>

@@ -1,0 +1,162 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	template="/templates/modeloSistema.xhtml">
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menuPrincipal.xhtml" />
+	</ui:define>
+	<ui:define name="conteudo">
+		<h:form id="frmUsuListagem">
+			<p:dataTable id="tblUsuarios" widgetVar="tabelaUsuarios"
+				emptyMessage="Nenhum Registro Encontrado"
+				value="#{MBUsuario.usuarios}" var="usuario"
+				filteredValue="#{MBUsuario.usuariosfiltrados}" paginator="true"
+				rows="10">
+
+				<f:facet name="header">
+				Usuario - Listagem
+				</f:facet>
+				
+				<p:column headerText="Código" sortBy="#{usuario.id}">
+					<h:outputText value="#{usuario.id}" />
+				</p:column>
+
+				<p:column headerText="Descrição" sortBy="#{usuario.descricao}">
+					<h:outputText value="#{usuario.descricao}" />
+				</p:column>
+
+				<p:column headerText="Ativo" sortBy="#{usuario.ativo}">
+
+<!-- 					<p:selectBooleanButton value="#{usuario.ativo}" onLabel="Ativo" -->
+<!-- 						offLabel="Inativo" style="width:60px" disabled="false" /> -->
+				</p:column>
+
+
+				<p:column headerText="Opções">
+					<p:commandButton icon="ui-icon-trash"
+						oncomplete="PF('dlgUsuExcluir').show();"
+						update=":frmUsuExcluir:pnlUsuExcluir">
+						<f:setPropertyActionListener target="#{MBUsuario.usuario}"
+							value="#{usuario}" />
+					</p:commandButton>
+					<p:commandButton icon="ui-icon-pencil"
+						oncomplete="PF('dlgUsuEditar').show();"
+						update=":frmUsuEditar:pnlUsuEditar">
+						<f:setPropertyActionListener target="#{MBUsuario.usuario}"
+							value="#{usuario}" />
+					</p:commandButton>
+				</p:column>
+
+				<f:facet name="footer">
+					<p:commandButton value="Novo"
+						actionListener="#{MBUsuario.prepararNovo}"
+						oncomplete="PF('dlgUsuNovo').show();"
+						update=":frmUsuNovo:pnlUsuNovo" />
+				</f:facet>
+
+			</p:dataTable>
+
+			<h3>Exportar Para PDF</h3>
+
+			<h:commandLink>
+				<p:graphicImage value="/resources/img/pdf.png" />
+				<p:dataExporter type="pdf" target="tblUsuarios" fileName="usuarios"
+					pageOnly="true" />
+			</h:commandLink>
+
+		</h:form>
+
+<p:dialog widgetVar="dlgUsuNovo" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Usuario - Novo">
+			<h:form id="frmUsuNovo">
+				<h:panelGrid id="pnlUsuNovo" columns="2">
+
+					<p:outputLabel for="txtDescUsuNovo" value="Descricao:" />
+					<p:inputText id="txtDescUsuNovo" size="30" maxlength="50"
+						value="#{MBUsuario.usuario.descricao}" required="true"
+						requiredMessage="Campo de preenchimento obrigatorio!!!" 
+						onblur="value=value.toUpperCase()"/>
+						
+						<p:outputLabel for="txtSenUsuNovo" value="Senha:" />
+					<p:password id="txtSenUsuNovo" size="30" maxlength="50"
+						value="#{MBUsuario.usuario.senha}" required="true"
+						requiredMessage="Campo de preenchimento obrigatorio!!!" />
+						
+				</h:panelGrid>
+				<h:panelGrid columns="2">
+					<p:commandButton value="Gravar"
+						actionListener="#{MBUsuario.novo}"
+						oncomplete="verificar(xhr, status, args, 'dlgUsuNovo', 'tabelaUsuarios');"
+						update=":frmUsuListagem:tblUsuarios :msgGlobal" />
+					<p:commandButton value="Cancelar" process="@this"
+						onclick="PF('dlgUsuNovo').hide();">
+						<p:resetInput target="pnlUsuNovo" />
+						</p:commandButton>
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+		
+
+		<p:dialog widgetVar="dlgUsuExcluir" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Usuario - Excluir">
+			<h:form id="frmUsuExcluir">
+				<h:panelGrid id="pnlUsuExcluir" columns="2">
+					<h:outputLabel value="Código" />
+					<h:outputText value="#{MBUsuario.usuario.id}" />
+
+					<h:outputLabel value="Descrição" />
+					<h:outputText value="#{MBUsuario.usuario.descricao}" />
+				</h:panelGrid>
+				<h:panelGrid columns="2">
+					<p:commandButton value="Excluir"
+						actionListener="#{MBUsuario.excluir}"
+						oncomplete="PF('dlgUsuExcluir').hide(); tabelaUsuarios.clearFilters();"
+						update=":frmUsuListagem:tblUsuarios :msgGlobal" />
+					<p:commandButton value="Cancelar"
+						onclick="PF('dlgUsuExcluir').hide();" />
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+		<p:dialog widgetVar="dlgUsuEditar" closable="false" draggable="false"
+			resizable="false" modal="true" appendTo="@(body)"
+			header="Usuario - Editar">
+			<h:form id="frmUsuEditar">
+				<h:panelGrid id="pnlUsuEditar" columns="2">
+					<p:outputLabel value="Código" />
+					<h:outputText value="#{MBUsuario.usuario.id}" />
+
+					<p:outputLabel for="txtDescUsuEditar" value="Descrção: " />
+					<h:inputText id="txtDescUsuEditar"
+						value="#{MBUsuario.usuario.descricao}" size="30" maxlength="50"
+						required="true" requiredMessage="Campo Descricao é Obrigatorio!"
+						onblur="value=value.toUpperCase()" />
+
+					<p:outputLabel for="txtSenhaUsuEditar" value="Senha: " />
+					<p:password id="txtSenhaUsuEditar"
+						value="#{MBUsuario.usuario.senha}" size="30" maxlength="50"
+						required="true" requiredMessage="Campo Senha é Obrigatorio!" />
+
+					<p:outputLabel value="Ativo:" />
+					<p:selectBooleanCheckbox value="#{MBUsuario.usuario.ativo}" />
+
+				</h:panelGrid>
+				<h:panelGrid columns="2">
+					<p:commandButton value="Editar"
+						actionListener="#{MBUsuario.editar}"
+						oncomplete="verificar(xhr, status, args, 'dlgUsuEditar', 'tabelaUsuarios')"
+						update=":frmUsuListagem:tblUsuarios :msgGlobal" />
+					<p:commandButton value="Cancelar" process="@this"
+						onclick="PF('dlgUsuEditar').hide();" />
+				</h:panelGrid>
+			</h:form>
+		</p:dialog>
+	</ui:define>
+
+</ui:composition>

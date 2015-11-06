@@ -1,0 +1,187 @@
+<?xml version="1.0" encoding="ISO-8859-1" ?>
+<!DOCTYPE html PUBLIC "-//W3C//DTD XHTML 1.0 Transitional//EN" "http://www.w3.org/TR/xhtml1/DTD/xhtml1-transitional.dtd">
+<ui:composition xmlns="http://www.w3.org/1999/xhtml"
+	xmlns:h="http://java.sun.com/jsf/html"
+	xmlns:f="http://java.sun.com/jsf/core"
+	xmlns:p="http://primefaces.org/ui"
+	xmlns:ui="http://java.sun.com/jsf/facelets"
+	template="/templates/modeloSistema.xhtml">
+
+	<ui:define name="menu">
+		<ui:include src="/includes/menuPrincipal.xhtml"></ui:include>
+	</ui:define>
+
+	<ui:define name="conteudo">
+
+		<f:event listener="#{MBChamado.carregarListagem}" type="preRenderView"></f:event>
+
+		<h:form id="frmChaListagem">
+
+			<p:dataTable id="tblChaListagem" widgetVar="tabelaChamados"
+				value="#{MBChamado.chamados}" var="chamado"
+				emptyMessage="Nenhum Registro Encontrado!" paginator="true" rows="10"
+				filteredValue="#{MBChamado.chamadosFiltrados}">
+
+				<f:facet name="header">
+					<h:outputText value="Chamados - Listagem" />
+				</f:facet>
+
+				<p:column headerText="Codigo" sortBy="#{chamado.id}">
+					<h:outputText value="#{chamado.id}" />
+				</p:column>
+
+				<p:column headerText="Data" filterBy="#{chamado.data_abertura}"
+					sortBy="#{chamado.data_abertura}" mask="99.999.999/9999-99">
+					<h:outputText value="#{chamado.data_abertura}" />
+				</p:column>
+
+				<p:column headerText="Cliente"
+					filterBy="#{chamado.cliente.razao_social}"
+					sortBy="#{chamado.cliente.razao_social}">
+					<h:outputText value="#{chamado.cliente.razao_social}" />
+				</p:column>
+
+				<p:column headerText="Motivo" filterBy="#{chamado.motivo}">
+					<h:outputText value="#{chamado.motivo}" />
+				</p:column>
+
+				<p:column headerText="Usuario"
+					filterBy="#{chamado.tec_abertura}"
+					sortBy="#{chamado.tec_abertura}">
+					<h:outputText value="#{chamado.tec_abertura}" />
+				</p:column>
+
+				<p:column headerText="Atender">
+
+					<p:commandButton icon="ui-icon-pencil"
+						actionListener="#{MBChamado.prepararEditar}"
+						oncomplete="PF('dlgChaEditar').show();"
+						update=":msgGlobal :frmChaEditar:pnlChaEditar">
+						<f:setPropertyActionListener target="#{MBChamado.chamado}"
+							value="#{chamado}" />
+					</p:commandButton>
+				</p:column>
+
+				<f:facet name="footer">
+					<p:commandButton value="Novo" oncomplete="PF('dlgChaNovo').show();"
+						actionListener="#{MBChamado.prepararNovo}"
+						update=":frmChaNovo:pnlChaNovo :msgGlobal" />
+				</f:facet>
+			</p:dataTable>
+		</h:form>
+
+		<p:dialog widgetVar="dlgChaNovo" closable="false" draggable="false"
+			resizable="false" header="Adicionar Chamado">
+			<h:form id="frmChaNovo">
+				<h:panelGrid id="pnlChaNovo" columns="4">
+
+					<p:outputLabel value="Cliente: " />
+					<p:selectOneMenu value="#{MBChamado.chamado.cliente.id}"
+						filter="true" required="true"
+						requiredMessage="O campo Cliente é obrigatorio">
+						<f:selectItem itemValue="" itemLabel="Selecione um Cliente" />
+						<f:selectItems value="#{MBChamado.comboClientes}" var="cliente"
+							itemValue="#{cliente.id}" itemLabel="#{cliente.razao_social}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Data da Abertura" />
+					<p:clock pattern="dd/MM/yyyy HH:mm" mode="server" />
+
+					<p:outputLabel value="Solicitado Por:" size="80" />
+					<p:inputText value="#{MBChamado.chamado.solicitante}"
+						maxlength="50" size="30" required="true"
+						requiredMessage="O campo Solicitado Por é obrigatorio"
+						onblur="value=value.toUpperCase()" />
+
+					<p:outputLabel value="Atendido Por: " />
+					<p:selectOneMenu value="#{MBChamado.chamado.tec_abertura}"
+						filter="true" required="true"
+						requiredMessage="O campo Atendido Por é obrigatorio">
+						<f:selectItem itemValue="" itemLabel="Selecione um Tecnico"  />
+						<f:selectItems value="#{MBChamado.comboUsuarios}" var="usuario"
+							itemValue="#{usuario.descricao}" itemLabel="#{usuario.descricao}"  />
+					</p:selectOneMenu>
+
+				</h:panelGrid>
+				<h:panelGrid id="pnlChaNovo2" columns="2">
+
+					<p:outputLabel value="Motivo" />
+					<p:inputText value="#{MBChamado.chamado.motivo}" maxlength="80"
+						size="80" required="true"
+						requiredMessage="O campo Motivo é obrigatorio"
+						onblur="value=value.toUpperCase()" />
+
+					<p:outputLabel value="Erro Encontrado" />
+					<p:inputText id="txtChaErro" widgetVar="txtChaErroEncontrado"
+						value="#{MBChamado.chamado.erro_econtrado}" maxlength="80"
+						size="80" required="true"
+						requiredMessage="O campo Erro Encontrado é obrigatorio"
+						onblur="value=value.toUpperCase()" />
+
+				</h:panelGrid>
+				<h:panelGrid columns="2">
+
+					<p:commandButton value="Gravar" actionListener="#{MBChamado.novo}"
+						oncomplete="verificar(xhr, status, args, 'dlgChaNovo', 'tabelaChamados');"
+						update=":frmChaListagem:tblChaListagem :msgGlobal " />
+
+					<p:commandButton value="Cancelar" process="@this"
+						oncomplete="PF('dlgChaNovo').hide();" />
+				</h:panelGrid>
+
+			</h:form>
+		</p:dialog>
+
+		<p:dialog widgetVar="dlgChaEditar" closable="false" draggable="false"
+			resizable="false" header="Chamado - Editar">
+			<h:form id="frmChaEditar">
+				<p:panelGrid id="pnlChaEditar" columns="4">
+
+					<p:outputLabel value="Codigo: " />
+					<h:outputText value="#{MBChamado.chamado.id}" />
+
+					<p:outputLabel value="Motivo: " />
+					<h:outputText value="#{MBChamado.chamado.motivo}" size="30" />
+
+					<p:outputLabel value="Solicitado Por: " />
+					<h:outputText value="#{MBChamado.chamado.solicitante}" size="30" />
+
+					<p:outputLabel value="Atendido Por: " />
+					<h:outputText value="#{MBChamado.chamado.usuario.descricao}" size="30" />
+
+					<p:outputLabel value="Erro Encontrado: " />
+					<h:inputText value="#{MBChamado.chamado.erro_econtrado}" size="80" maxlength="80"
+						onblur="value=value.toUpperCase()" />
+
+					<p:outputLabel value="Solucao: " />
+					<h:inputText value="#{MBChamado.chamado.solucao}" size="80" maxlength="80"
+						required="true" requiredMessage="O campo Solucao é obrigatorio"
+						onblur="value=value.toUpperCase()" />
+
+					<p:outputLabel value="Resolvido Por: " />
+					<p:selectOneMenu value="#{MBChamado.chamado.tec_encerramento}"
+						filter="true" required="true"
+						requiredMessage="O campo Resolvido Por é obrigatorio">
+						<f:selectItem itemValue="" itemLabel="Selecione um Tecnico" />
+						<f:selectItems value="#{MBChamado.comboUsuarios}" var="usuario"
+							itemValue="#{usuario.descricao}" itemLabel="#{usuario.descricao}" />
+					</p:selectOneMenu>
+
+					<p:outputLabel value="Data Encerramento: " />
+					<p:clock pattern="dd/MM/yyyy HH:mm" mode="server" />
+
+				</p:panelGrid>
+
+				<p:panelGrid columns="2">
+					<p:commandButton value="Encerrar"
+						actionListener="#{MBChamado.editar}"
+						oncomplete="verificar(xhr, status, args, 'dlgChaEditar', 'tabelaChamados')"
+						update=":frmChaListagem:tblChaListagem :msgGlobal" />
+					<p:commandButton value="Cancelar"
+						oncomplete="PF('dlgChaEditar').hide();" />
+				</p:panelGrid>
+			</h:form>
+		</p:dialog>
+
+	</ui:define>
+</ui:composition>
